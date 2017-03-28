@@ -8,18 +8,50 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+import RxSwift 
+import RxCocoa
 
+class ViewController: UIViewController {
+    let disposeBag = DisposeBag()
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        Observable.zip(extra(), extra2()) { ($0, $1) }.subscribe { event in
+            switch event {
+            case let .next(response1, response2):
+                print(response1)
+            default:
+                break
+            }
+        }
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+
+    
+    func extra() -> Observable<ExtraPointLoginResponse> {
+        return Observable.create { o in
+            let task = APIRequest.request(withRouter: Router.getMock(), withHandler: { (response, error) in
+                if let response = response as? ExtraPointLoginResponse {
+                    o.onNext(response)
+                }
+            })
+        
+            return Disposables.create() {
+                task?.cancel()
+            }
+        }
     }
-
-
+    
+    func extra2() -> Observable<ExtraPointLoginResponse> {
+        return Observable.create { o in
+            let task = APIRequest.request(withRouter: Router.getMock(), withHandler: { (response, error) in
+                if let response = response as? ExtraPointLoginResponse {
+                    o.onNext(response)
+                }
+            })
+            return Disposables.create() {
+                task?.cancel()
+            }
+        }
+    }
 }
 

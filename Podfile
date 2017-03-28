@@ -6,6 +6,7 @@ target 'youtube' do
     pod 'RxSwift'
     pod 'RxCocoa'
     pod 'IGListKit'
-    pod 'Moya/RxSwift'
+    pod 'Alamofire', '~> 4.4'
+    pod "youtube-ios-player-helper", "~> 0.1.4"
 end
 

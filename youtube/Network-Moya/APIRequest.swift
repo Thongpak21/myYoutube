@@ -7,36 +7,28 @@
 //
 
 import Foundation
-import Moya
-import RxSwift
-import RxCocoa
+import Alamofire
 
 public class APIRequest {
-    public typealias completionHandler = (BaseResponse?, NSError?) -> Void
+    public typealias completionHandler = (Any, NSError?) -> Void
+
     
-    
-    public static func request(withRouter router: TargetType, withHandler handler: @escaping completionHandler)  {
-        let provider = RxMoyaProvider<MultiTarget>()
-        provider.request(MultiTarget(router))
-            .mapJSON()
-            .subscribe { (event) in
-                switch event {
-                case let .next(response):
-                    self.SuccessHandler(JSON: response as AnyObject, router: router , completionHandler: handler)
-                    print(response)
-                case let .error(error):
-                    print(error)
-                default:
-                    break
-                }
-        }//.disposed(by: DisposeBag())
+    public static func request(withRouter router: MyYoutubeRouter, withHandler handler: @escaping completionHandler) -> Request?  {
+        return Alamofire.request(router).responseJSON(completionHandler: { response in
+            switch response.result {
+            case .success(let JSON):
+                SuccessHandler(JSON: JSON as AnyObject?, router: router, completionHandler: handler)
+            case .failure(let error):
+                print(error)
+            }
+        })
     }
 //        return nil
     
-    public static func SuccessHandler(JSON: AnyObject?, router: TargetType, completionHandler: APIRequest.completionHandler) {
+    public static func SuccessHandler(JSON: AnyObject?, router: MyYoutubeRouter, completionHandler: APIRequest.completionHandler) {
         var instance: BaseResponse? = nil
         if let JSON = JSON {
-            instance = BaseResponse.init(withDictionary: JSON)
+            instance = router.responseClass.init(withDictionary: JSON)//BaseResponse.init(withDictionary: JSON)
         }
         completionHandler(instance!, nil)
     }
