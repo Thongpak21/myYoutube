@@ -22,7 +22,7 @@ class ViewController: UIViewController {
             default:
                 break
             }
-        }
+        }.addDisposableTo(disposeBag)
     }
 
 
